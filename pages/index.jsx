@@ -3,7 +3,7 @@ import {paymentStatus} from "../lib/Entities";
 import moment from "moment";
 
 export default function Index() {
-    const [inputAmount, setInputAmount] = useState(0);
+    const [inputAmount, setInputAmount] = useState(0.01);
     const [paymentState, setPaymentState] = useState({
         status: paymentStatus.unknown,
     });
@@ -63,9 +63,10 @@ export default function Index() {
         const response = await fetch(`/api/deletePaymentRequest`, {
             method: 'DELETE',
             body: JSON.stringify({
-                id: paymentState.paymentRequest.id,
+                id: paymentState.paymentRequest.id
             }),
         });
+        console.log('delete suc', response)
         if (!response.ok) {
             console.error('Error deleting paymentRequest');
             console.error(await response.text());
@@ -76,7 +77,7 @@ export default function Index() {
         const response = await fetch(`/api/getRecentPayments`);
         if (response.ok) {
             const data = await response.json();
-            console.log(data?.items);
+            console.log('getRecentPayments: ', data?.items);
             setRecentPayments(data?.items);
         } else {
             console.error(await response.text());
