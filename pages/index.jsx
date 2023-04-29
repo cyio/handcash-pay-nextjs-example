@@ -124,19 +124,19 @@ export default function Index() {
         <div className="w-full grow flex flex-col md:flex-row justify-around gap-x-16 p-0 md:p-6">
             <div className="w-full h-full grow md:basis-1/2 flex md:justify-end">
                 <div
-                    className="w-full grow md:max-w-[22rem] flex flex-col md:rounded-xl bg-darkBackground-800 md:shadow-sm shadow-white/10 justify-center items-center">
+                    className="w-full grow md:max-w-[22rem] flex flex-col md:rounded-xl bg-bg-dark-nullBackground-nullBackground-800 md:shadow-sm shadow-white/10 justify-center items-center">
                     {paymentState?.status === paymentStatus.unknown &&
                         <div
                             className="flex flex-col grow gap-y-2 w-full p-6 rounded-xl items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  strokeWidth={1.5}
-                                 stroke="currentColor" className="w-32 h-32 text-white/40">
+                                 stroke="currentColor" className="w-32 h-32 text-black-null/40">
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                       d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/>
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                       d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>
                             </svg>
-                            <p className="text-xl text-white/40">Enter an amount to generate a payment QR code</p>
+                            <p className="text-xl text-black-null/40">Enter an amount to generate a payment QR code</p>
                         </div>
                     }
                     {paymentState?.status === paymentStatus.confirmed &&
@@ -149,14 +149,14 @@ export default function Index() {
                                       clipRule="evenodd"/>
                             </svg>
                             <h5 className="text-2xl">Payment confirmed</h5>
-                            <p className="text-sm text-white/70">Thanks for your payment!</p>
+                            <p className="text-sm text-black-null/70">Thanks for your payment!</p>
                         </div>
                     }
                     {paymentState?.status === paymentStatus.pending &&
                         <div
                             className="flex flex-col grow gap-y-2 w-full p-6 rounded-xl items-center justify-center">
                             <p className="">Scan to pay</p>
-                            <div className="p-1 bg-white w-72 h-72 rounded-xl">
+                            <div className="p-1 bg-white-null w-72 h-72 rounded-xl">
                                 <img src={paymentState?.paymentRequest?.paymentRequestQrCodeUrl}
                                      alt={"QR code for payment request"}
                                      className="w-full h-full"/>
@@ -188,7 +188,7 @@ export default function Index() {
                             }
                         </div>
                     }
-                    <div className="w-full grow-0 fixed bottom-0 left-0 md:relative text-white/90">
+                    <div className="w-full grow-0 fixed bottom-0 left-0 md:relative text-black-null/90">
                         <div className="relative">
                             <input
                                 type="text"
@@ -197,8 +197,9 @@ export default function Index() {
                                 disabled={paymentState?.status !== paymentStatus.unknown}
                                 onInput={onChangeInputAmount}
                                 onKeyDown={(event) => event.key === 'Enter' && onConfirmPaymentAmount()}
-                                className="block w-full bg-darkBackground-800 border-0 border-t border-white/30 pr-2 pl-6 focus:text-indigo-400 focus:caret-indigo-400 focus:border-indigo-500 focus:ring-transparent text-4xl"
-                                placeholder="0.00"
+                                className="block w-full bg-bg-dark-nullBackground-nullBackground-800 border-0 border-t border-white/30 pr-2 pl-6 focus:text-indigo-400 focus:caret-indigo-400 focus:border-indigo-500 focus:ring-transparent text-4xl"
+                                value={inputAmount}
+                                placeholder="0.01"
                             />
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-6">
                                 <span className="text-4xl">USD</span>
@@ -206,7 +207,7 @@ export default function Index() {
                         </div>
                         {paymentState?.status === paymentStatus.unknown &&
                             <button
-                                className="w-full bg-indigo-500 hover:opacity-90 text-3xl text-white/90 md:rounded-b-xl py-3"
+                                className="w-full bg-indigo-500 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 disabled={inputAmount <= 0}
                                 onClick={onConfirmPaymentAmount}
                             >Enter
@@ -214,14 +215,14 @@ export default function Index() {
                         }
                         {[paymentStatus.pending, paymentStatus.expired].includes(paymentState?.status) &&
                             <button
-                                className="w-full bg-red-400 hover:opacity-90 text-3xl text-white/90 md:rounded-b-xl py-3"
+                                className="w-full bg-red-400 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 onClick={onCancelPayment}
                             >Cancel
                             </button>
                         }
                         {paymentState?.status === paymentStatus.confirmed &&
                             <button
-                                className="w-full bg-green-500 hover:opacity-90 text-3xl text-white/90 md:rounded-b-xl py-3"
+                                className="w-full bg-green-500 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 onClick={onCancelPayment}
                             >Next
                             </button>
@@ -232,9 +233,9 @@ export default function Index() {
             <div className="w-full grow hidden md:block basis-1/2 flex justify-start">
                 <div className="flex flex-col max-w-[23rem] max-h-[32rem] items-start gap-y-2">
                     <div className="flew-grow w-full mb-2 flex justify-between">
-                        <h3 className="text-md text-white/90 uppercase">Recent payments</h3>
+                        <h3 className="text-md text-black-null/90 uppercase">Recent payments</h3>
                         <button
-                            className="text-xs text-white/90 bg-indigo-500/40 px-3 py-1 rounded-full hover:ring-2 hover:ring-indigo-500"
+                            className="text-xs text-black-null/90 bg-indigo-500/40 px-3 py-1 rounded-full hover:ring-2 hover:ring-indigo-500"
                             onClick={getRecentPayments}
                         >Update
                         </button>
@@ -253,7 +254,7 @@ export default function Index() {
                                              className="w-12 h-12 rounded-full"/>
                                         <div className="flex flex-col items-start justify-center">
                                             <p className="text-lg m-0 p-0">${payment.userData.username}</p>
-                                            <p className="text-xs text-white/70 m-0 p-0">{moment(payment.confirmedAt).fromNow()}</p>
+                                            <p className="text-xs text-black-null/70 m-0 p-0">{moment(payment.confirmedAt).fromNow()}</p>
                                         </div>
                                     </div>
                                     <div>
@@ -270,14 +271,14 @@ export default function Index() {
                                     key={index}
                                     className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-white/10">
                                     <div className="flex gap-x-4">
-                                        <div className="w-12 h-12 rounded-full bg-white/5"/>
+                                        <div className="w-12 h-12 rounded-full bg-white-null/5"/>
                                         <div className="flex flex-col items-start justify-center gap-y-1">
-                                            <div className="bg-white/5 rounded-full w-24 h-5"/>
-                                            <div className="bg-white/5 rounded-full w-20 h-4"/>
+                                            <div className="bg-white-null/5 rounded-full w-24 h-5"/>
+                                            <div className="bg-white-null/5 rounded-full w-20 h-4"/>
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="bg-white/5 rounded-full w-20 h-8"/>
+                                        <div className="bg-white-null/5 rounded-full w-20 h-8"/>
                                     </div>
                                 </div>
                             ))

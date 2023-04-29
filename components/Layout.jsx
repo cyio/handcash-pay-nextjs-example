@@ -3,7 +3,7 @@ import Head from "next/head";
 
 export default function Layout({children}) {
     return (
-        <div className="flex flex-col items-center bg-darkBackground-900 min-h-screen">
+        <div className="flex flex-col items-center bg-darkBackground-null min-h-screen">
             <Head>
                 <title>HandCash Pay Example</title>
                 <meta property="og:type" content="website" />
@@ -20,24 +20,24 @@ export default function Layout({children}) {
                 className="container flex grow-0 w-full justify-center">
                 <div className="p-4 flex flex-grow justify-between items-center ">
                     <Link href="/" passHref>
-                        <h1 className="text-xl font-bold text-white/90 hover:text-white hover:cursor-pointer">HandCash
+                        <h1 className="text-xl font-bold text-black/90 hover:text-black hover:cursor-pointer">HandCash
                             Pay Checkout Demo</h1>
                     </Link>
                     <div className="flex gap-x-4">
                         <Link
-                            className="hidden md:block flex items-center w-fit rounded-full py-1 pl-4 pr-5 gap-x-4 border border-transparent text-lg font-light hover:text-white text-white/70"
+                            className="hidden md:block flex items-center w-fit rounded-full py-1 pl-4 pr-5 gap-x-4 border border-transparent text-lg font-light hover:text-black text-black/70"
                             target="_blank"
                             rel="noreferrer"
                             href="https://docs.handcash.io/docs/overview">Github
                         </Link>
                         <Link
-                            className="hidden md:block flex items-center w-fit rounded-full py-1 pl-4 pr-5 gap-x-4 border border-transparent text-lg font-light hover:text-white text-white/70"
+                            className="hidden md:block flex items-center w-fit rounded-full py-1 pl-4 pr-5 gap-x-4 border border-transparent text-lg font-light hover:text-black text-black/70"
                             target="_blank"
                             rel="noreferrer"
                             href="https://docs.handcash.io/docs/overview">Documentation
                         </Link>
                         <Link href="/settings" passHref
-                              className="flex items-center w-fit bg-white/1 rounded-full py-1 pl-4 pr-5 gap-x-4 border border-white/50 hover:border-white/70 hover:text-white text-white/70">
+                              className="flex items-center w-fit bg-white/1 rounded-full py-1 pl-4 pr-5 gap-x-4 border border-white/50 hover:border-white/70 hover:text-black text-black/70">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  strokeWidth={1.5}
                                  stroke="currentColor" className="w-6 h-6">
