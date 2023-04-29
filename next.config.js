@@ -3,6 +3,6 @@ module.exports = {
   experimental: {
   },
   images: {
-    domains: ['cloud.handcash.io']
+    domains: ['cloud.handcash.io', 'pay.handcash.io']
   }
 }

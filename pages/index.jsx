@@ -1,26 +1,53 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState, useRef} from "react";
 import {paymentStatus} from "../lib/Entities";
 import moment from "moment";
+import Image from 'next/image'
+import { useRouter } from 'next/router';
+
+const isDev = () => window.location.port !== ''
+
+function sendDataToParent(data) {
+    console.log('sendDataToParent ', data)
+    window.opener.receiveDataFromChild(data);
+    window.close()
+  }
 
 export default function Index() {
+    const router = useRouter();
+    const { query } = router;
+    console.log('query', query)
     const [inputAmount, setInputAmount] = useState(0.01);
     const [paymentState, setPaymentState] = useState({
         status: paymentStatus.unknown,
     });
     const [settings, setSettings] = useState({});
     const [recentPayments, setRecentPayments] = useState([]);
+    const submitButtonRef = useRef(null);
 
     let checkPaymentStatusInterval;
 
     useEffect(() => {
-        const storedSettings = localStorage.getItem('settings');
-        if (storedSettings) {
-            setSettings(JSON.parse(storedSettings));
-        } else {
-            window.location.href = '/settings';
-        }
-        getRecentPayments();
+        // const storedSettings = localStorage.getItem('settings');
+        // if (storedSettings) {
+        //     setSettings(JSON.parse(storedSettings));
+        // } else {
+        //     window.location.href = '/settings';
+        // }
+        // getRecentPayments();
     }, []);
+
+    useEffect(() => {
+        submitButtonRef.current.click();
+    }, [settings]);
+
+    useEffect(() => {
+        if (query.amount) {
+            setInputAmount(query.amount)
+        }
+        setSettings({
+            ...query
+        })
+    }, [query]);
 
     const onChangeInputAmount = (event) => {
         const value = parseFloat(event.target.value);
@@ -36,7 +63,7 @@ export default function Index() {
             method: 'POST',
             body: JSON.stringify({
                 sendAmount: inputAmount,
-                currencyCode: 'USD',
+                currencyCode: query.currency || 'USD',
                 destination: settings?.destination,
                 businessName: settings?.businessName,
                 notificationsEmail: settings?.notificationsEmail,
@@ -77,12 +104,27 @@ export default function Index() {
         const response = await fetch(`/api/getRecentPayments`);
         if (response.ok) {
             const data = await response.json();
-            console.log('getRecentPayments: ', data?.items);
-            setRecentPayments(data?.items);
+            if (data?.items) {
+                console.log('getRecentPayments: ', data.items);
+                setRecentPayments(data.items);
+                if (data.items.length) {
+                    onPaymentSuccess(data.items[0]);
+                }
+            }
         } else {
             console.error(await response.text());
         }
     };
+
+    const onPaymentSuccess = (data) => {
+        if (isDev()) {
+            data = {
+                transactionId: '123'
+            }
+        } else {
+        }
+        sendDataToParent(data)
+    }
 
     const checkPaymentStatus = async (id) => {
         const response = await fetch(`api/paymentStatus/${id}`, {
@@ -123,6 +165,7 @@ export default function Index() {
 
     return (
         <div className="w-full grow flex flex-col md:flex-row justify-around gap-x-16 p-0 md:p-6">
+            <button onClick={onPaymentSuccess}>我已支付</button>
             <div className="w-full h-full grow md:basis-1/2 flex md:justify-end">
                 <div
                     className="w-full grow md:max-w-[22rem] flex flex-col md:rounded-xl bg-bg-dark-nullBackground-nullBackground-800 md:shadow-sm shadow-white/10 justify-center items-center">
@@ -158,9 +201,13 @@ export default function Index() {
                             className="flex flex-col grow gap-y-2 w-full p-6 rounded-xl items-center justify-center">
                             <p className="">Scan to pay</p>
                             <div className="p-1 bg-white-null w-72 h-72 rounded-xl">
-                                <img src={paymentState?.paymentRequest?.paymentRequestQrCodeUrl}
-                                     alt={"QR code for payment request"}
-                                     className="w-full h-full"/>
+                                <Image
+                                    src={paymentState?.paymentRequest?.paymentRequestQrCodeUrl}
+                                    alt={"QR code for payment request"}
+                                    className="w-full h-full"
+                                    width="200"
+                                    height="200"
+                                />
                             </div>
                             {paymentState?.expirationInSeconds && paymentState.expirationInSeconds < 30 &&
                                 <div
@@ -200,10 +247,10 @@ export default function Index() {
                                 onKeyDown={(event) => event.key === 'Enter' && onConfirmPaymentAmount()}
                                 className="block w-full bg-bg-dark-nullBackground-nullBackground-800 border-0 border-t border-white/30 pr-2 pl-6 focus:text-indigo-400 focus:caret-indigo-400 focus:border-indigo-500 focus:ring-transparent text-4xl"
                                 value={inputAmount}
-                                placeholder="0.01"
+                                // placeholder="0.01"
                             />
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-6">
-                                <span className="text-4xl">USD</span>
+                                <span className="text-4xl">{query.currency || 'USD'}</span>
                             </div>
                         </div>
                         {paymentState?.status === paymentStatus.unknown &&
@@ -211,6 +258,7 @@ export default function Index() {
                                 className="w-full bg-indigo-500 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 disabled={inputAmount <= 0}
                                 onClick={onConfirmPaymentAmount}
+                                ref={submitButtonRef}
                             >Enter
                             </button>
                         }
