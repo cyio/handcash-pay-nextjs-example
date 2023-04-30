@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-// import { useRouter } from 'next/router'
 
 let childWindow
 
@@ -13,14 +12,20 @@ const receiveDataFromChild = (data) => {
 }
 
 const DemoPage = () => {
-  // const router = useRouter()
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   useEffect(() => {
     const txId = localStorage.getItem('txId')
     if (!txId) {
-      // window.open('/')
-      childWindow = window.open('/?amount=0.01&currencyCode=CNY&destination=oakerx&businessName=demo', 'myWindow', 'width=800,height=600');
+      const params = {
+        sendAmount: '0.01',
+        currencyCode: 'CNY',
+        destination: 'oakerx',
+        businessName: 'Demo Store'
+      };
+
+      const queryString = new URLSearchParams(params).toString();
+      childWindow = window.open(`/?${queryString}`, 'myWindow', 'width=800,height=600');
       window.receiveDataFromChild = receiveDataFromChild;
       childWindow.opener = window;
     } else {

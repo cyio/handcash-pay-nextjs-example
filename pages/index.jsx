@@ -16,7 +16,6 @@ function sendDataToParent(data) {
 export default function Index() {
     const router = useRouter();
     const { query } = router;
-    // console.log('query', query)
     const [inputAmount, setInputAmount] = useState(0.01);
     const [paymentState, setPaymentState] = useState({
         status: paymentStatus.unknown,
@@ -43,8 +42,8 @@ export default function Index() {
     }, [settings]);
 
     useEffect(() => {
-        if (query.amount) {
-            setInputAmount(query.amount)
+        if (query.sendAmount) {
+            setInputAmount(query.sendAmount)
         }
         setSettings({
             ...query
@@ -138,7 +137,7 @@ export default function Index() {
         if (response.ok) {
             const data = await response.json();
             setPaymentState((state) => {
-                if ([paymentStatus.confirmed, paymentStatus.unknown].includes(data.status)) {
+                if ([paymentStatus.confirmed].includes(data.status)) {
                     clearInterval(checkPaymentStatusInterval);
                     getRecentPayments();
                     return {
@@ -170,7 +169,7 @@ export default function Index() {
 
     return (
         <div className="w-full grow flex flex-col md:flex-row justify-around gap-x-16 p-0 md:p-6">
-            <button onClick={onPaymentSuccess}>我已支付</button>
+            {isDev ? <button onClick={onPaymentSuccess}>我已支付</button> : null}
             <div className="w-full h-full grow md:basis-1/2 flex md:justify-end">
                 <div
                     className="w-full grow md:max-w-[22rem] flex flex-col md:rounded-xl bg-bg-dark-nullBackground-nullBackground-800 md:shadow-sm shadow-white/10 justify-center items-center">
@@ -185,7 +184,7 @@ export default function Index() {
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                       d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>
                             </svg>
-                            <p className="text-xl text-black-null/40">Enter an amount to generate a payment QR code</p>
+                            <p className="text-xl text-black-null/40">Loading</p>
                         </div>
                     }
                     {paymentState?.status === paymentStatus.confirmed &&
@@ -243,7 +242,7 @@ export default function Index() {
                         </div>
                     }
                     <div className="w-full grow-0 fixed bottom-0 left-0 md:relative text-black-null/90">
-                        <div className="relative">
+                        {/* <div className="relative">
                             <input
                                 type="text"
                                 name="amount"
@@ -258,14 +257,14 @@ export default function Index() {
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-6">
                                 <span className="text-4xl">{query.currency || 'USD'}</span>
                             </div>
-                        </div>
+                        </div> */}
                         {paymentState?.status === paymentStatus.unknown &&
                             <button
-                                className="w-full bg-indigo-500 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
+                                className="opacity-0 w-full bg-indigo-500 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 disabled={inputAmount <= 0}
                                 onClick={onConfirmPaymentAmount}
                                 ref={submitButtonRef}
-                            >Enter
+                            >
                             </button>
                         }
                         {[paymentStatus.pending, paymentStatus.expired].includes(paymentState?.status) &&
@@ -286,7 +285,7 @@ export default function Index() {
                 </div>
             </div>
             <div className="w-full grow hidden md:block basis-1/2 flex justify-start">
-                <div className="flex flex-col max-w-[23rem] max-h-[32rem] items-start gap-y-2">
+                <div className="opacity-0 flex flex-col max-w-[23rem] max-h-[32rem] items-start gap-y-2">
                     <div className="flew-grow w-full mb-2 flex justify-between">
                         <h3 className="text-md text-black-null/90 uppercase">Recent payments</h3>
                         <button
