@@ -3,6 +3,7 @@ import {paymentStatus} from "../lib/Entities";
 import moment from "moment";
 import Image from 'next/image'
 import { useRouter } from 'next/router';
+import QRCode from 'qrcode'
 
 const isDev = () => window.location.port !== ''
 
@@ -15,13 +16,14 @@ function sendDataToParent(data) {
 export default function Index() {
     const router = useRouter();
     const { query } = router;
-    console.log('query', query)
+    // console.log('query', query)
     const [inputAmount, setInputAmount] = useState(0.01);
     const [paymentState, setPaymentState] = useState({
         status: paymentStatus.unknown,
     });
     const [settings, setSettings] = useState({});
     const [recentPayments, setRecentPayments] = useState([]);
+    const [qrCodeImg, setQrCodeImg] = useState('');
     const submitButtonRef = useRef(null);
 
     let checkPaymentStatusInterval;
@@ -75,6 +77,9 @@ export default function Index() {
                 paymentRequest: payment,
                 status: paymentStatus.pending,
             });
+            const str = `pay:?r=https%3A%2F%2Fcloud.handcash.io%2Fmerchant%2Finvoice%2F${payment.id}`
+            const qrUrl = await QRCode.toDataURL(str)
+            setQrCodeImg(qrUrl)
             startCheckPaymentStatusInterval(payment.id);
         }
     };
@@ -202,7 +207,8 @@ export default function Index() {
                             <p className="">Scan to pay</p>
                             <div className="p-1 bg-white-null w-72 h-72 rounded-xl">
                                 <Image
-                                    src={paymentState?.paymentRequest?.paymentRequestQrCodeUrl}
+                                    // src={paymentState?.paymentRequest?.paymentRequestQrCodeUrl}
+                                    src={qrCodeImg}
                                     alt={"QR code for payment request"}
                                     className="w-full h-full"
                                     width="200"

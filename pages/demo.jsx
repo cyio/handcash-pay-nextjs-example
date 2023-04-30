@@ -20,7 +20,7 @@ const DemoPage = () => {
     const txId = localStorage.getItem('txId')
     if (!txId) {
       // window.open('/')
-      childWindow = window.open('/?amount=0.01&currency=CNY&destination=oakerx&businessName=demo', 'myWindow', 'width=800,height=600');
+      childWindow = window.open('/?amount=0.01&currencyCode=CNY&destination=oakerx&businessName=demo', 'myWindow', 'width=800,height=600');
       window.receiveDataFromChild = receiveDataFromChild;
       childWindow.opener = window;
     } else {
