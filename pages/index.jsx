@@ -16,6 +16,7 @@ function sendDataToParent(data) {
 export default function Index() {
     const router = useRouter();
     const { query } = router;
+    // console.log('query', query)
     const [inputAmount, setInputAmount] = useState(0.01);
     const [paymentState, setPaymentState] = useState({
         status: paymentStatus.unknown,
@@ -37,17 +38,21 @@ export default function Index() {
         // getRecentPayments();
     }, []);
 
-    useEffect(() => {
-        submitButtonRef.current.click();
-    }, [settings]);
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         submitButtonRef.current.click();
+    //     }, 100)
+    // }, []);
 
     useEffect(() => {
         if (query.sendAmount) {
+            setSettings({
+                ...query
+            })
             setInputAmount(query.sendAmount)
+            onConfirmPaymentAmount(query)
+            // submitButtonRef.current.click();
         }
-        setSettings({
-            ...query
-        })
     }, [query]);
 
     const onChangeInputAmount = (event) => {
@@ -59,12 +64,13 @@ export default function Index() {
         }
     };
 
-    const onConfirmPaymentAmount = async () => {
+    const onConfirmPaymentAmount = async (settings) => {
+        console.info('onConfirmPaymentAmount', settings)
         const response = await fetch(`api/createPaymentRequest`, {
             method: 'POST',
             body: JSON.stringify({
-                sendAmount: inputAmount,
-                currencyCode: query.currency || 'USD',
+                sendAmount: settings.sendAmount,
+                currencyCode: settings.currencyCode || 'USD',
                 destination: settings?.destination,
                 businessName: settings?.businessName,
                 notificationsEmail: settings?.notificationsEmail,
@@ -72,12 +78,12 @@ export default function Index() {
         });
         if (response.ok) {
             const payment = await response.json();
+            payment.schemeUrl = `pay:?r=https%3A%2F%2Fcloud.handcash.io%2Fmerchant%2Finvoice%2F${payment.id}`
             setPaymentState({
                 paymentRequest: payment,
                 status: paymentStatus.pending,
             });
-            const str = `pay:?r=https%3A%2F%2Fcloud.handcash.io%2Fmerchant%2Finvoice%2F${payment.id}`
-            const qrUrl = await QRCode.toDataURL(str)
+            const qrUrl = await QRCode.toDataURL(payment.schemeUrl)
             setQrCodeImg(qrUrl)
             startCheckPaymentStatusInterval(payment.id);
         }
@@ -85,9 +91,9 @@ export default function Index() {
 
     const onCancelPayment = async () => {
         clearInterval(checkPaymentStatusInterval);
-        setPaymentState({
-            status: paymentStatus.unknown,
-        });
+        // setPaymentState({
+        //     status: paymentStatus.unknown,
+        // });
         if (!paymentState.paymentRequest) {
             return;
         }
@@ -101,6 +107,8 @@ export default function Index() {
         if (!response.ok) {
             console.error('Error deleting paymentRequest');
             console.error(await response.text());
+        } else {
+            window.close()
         }
     };
 
@@ -137,7 +145,10 @@ export default function Index() {
         if (response.ok) {
             const data = await response.json();
             setPaymentState((state) => {
-                if ([paymentStatus.confirmed].includes(data.status)) {
+                if ([paymentStatus.confirmed, paymentStatus.unknown].includes(data.status)) {
+                    if (data.status === paymentState.unknown) {
+                        debugger
+                    }
                     clearInterval(checkPaymentStatusInterval);
                     getRecentPayments();
                     return {
@@ -169,7 +180,7 @@ export default function Index() {
 
     return (
         <div className="w-full grow flex flex-col md:flex-row justify-around gap-x-16 p-0 md:p-6">
-            {isDev ? <button onClick={onPaymentSuccess}>我已支付</button> : null}
+            {/* {isDev ? <button onClick={onPaymentSuccess}>我已支付</button> : null} */}
             <div className="w-full h-full grow md:basis-1/2 flex md:justify-end">
                 <div
                     className="w-full grow md:max-w-[22rem] flex flex-col md:rounded-xl bg-bg-dark-nullBackground-nullBackground-800 md:shadow-sm shadow-white/10 justify-center items-center">
@@ -184,7 +195,11 @@ export default function Index() {
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                       d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>
                             </svg>
-                            <p className="text-xl text-black-null/40">Loading</p>
+                            <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-100" cx="12" cy="12" r="10" stroke="#555" strokeWidth="2"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {/* <p className="text-xl text-black-null/40">Loading</p> */}
                         </div>
                     }
                     {paymentState?.status === paymentStatus.confirmed &&
@@ -196,14 +211,14 @@ export default function Index() {
                                       d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
                                       clipRule="evenodd"/>
                             </svg>
-                            <h5 className="text-2xl">Payment confirmed</h5>
-                            <p className="text-sm text-black-null/70">Thanks for your payment!</p>
+                            <h5 className="text-2xl">支付成功</h5>
+                            {/* <p className="text-sm text-black-null/70">Thanks for your payment!</p> */}
                         </div>
                     }
                     {paymentState?.status === paymentStatus.pending &&
                         <div
                             className="flex flex-col grow gap-y-2 w-full p-6 rounded-xl items-center justify-center">
-                            <p className="">Scan to pay</p>
+                            <p className="">用手机 HandCash 扫一扫</p>
                             <div className="p-1 bg-white-null w-72 h-72 rounded-xl">
                                 <Image
                                     // src={paymentState?.paymentRequest?.paymentRequestQrCodeUrl}
@@ -214,6 +229,9 @@ export default function Index() {
                                     height="200"
                                 />
                             </div>
+                            <p>
+                                <a href={paymentState?.paymentRequest?.schemeUrl} target="_blank" rel="noreferrer" className="text-sky-500 hover:text-sky-600">打开 App 支付(仅手机)</a>
+                            </p>
                             {paymentState?.expirationInSeconds && paymentState.expirationInSeconds < 30 &&
                                 <div
                                     className="flex items-center justify-center bg-red-100/10 text-red-300 border-red-300 rounded-full mt-1 pl-4 pr-6 py-2 gap-x-2">
@@ -271,14 +289,14 @@ export default function Index() {
                             <button
                                 className="w-full bg-red-400 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 onClick={onCancelPayment}
-                            >Cancel
+                            >取消支付
                             </button>
                         }
                         {paymentState?.status === paymentStatus.confirmed &&
                             <button
                                 className="w-full bg-green-500 hover:opacity-90 text-3xl text-black-null/90 md:rounded-b-xl py-3"
                                 onClick={onCancelPayment}
-                            >Next
+                            >继续
                             </button>
                         }
                     </div>
